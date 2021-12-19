@@ -1,83 +1,132 @@
 #include <stdio.h>
-
-int market[500] = {};
-int count;
+#include <string.h>
 
 
 typedef struct node{
-    char data[10] = {};
-    char code[20] = {};
+    char name[20];
+    int num;
 }NODE;
 
-void Quick(int list[], int left, int right){
+NODE market[500];
+int count;
 
+#define swap(x,y,t) ((t)=(x), (x)=(y), (y)=(t))
+
+
+int quick(NODE list[], int left, int right)
+{
+    int low, high;
+    NODE temp;
+    char pivot[20] = {'\0', };
+    low = left;
+    high = right+1;
+    strcpy(pivot, list[left].name);
+    do
+    {
+        do
+        {
+            low++;
+        }while(list[low].name < pivot);
+        do
+        {
+            high--;
+        }while(list[high].name > pivot);
+
+        if(low<high)
+        {
+            swap(list[low], list[high], temp);
+        }
+    }while(low<high);
+    swap(list[left], list[high], temp);
+    return high;
 }
 
-void QuSort(int list[], int start, int end){
-
+void quicksort(NODE list[], int left,int right)
+{
+    if(left<right)
+    {
+        int q=quick(list, left, right);
+        quicksort(list, left, q-1);
+        quicksort(list, q+1, right);
+    }
 }
 
-int Bisearch(int list[], int start, int end, int key){
+int Bisearch(NODE list[], int start, int end, char key[20]){
     int mid;
     if(start <= end){
         mid = start + end;
         mid /= 2;
-        if(key == list[mid]){
-            printf("상품이 존재합니다.");
+        if(key == list[mid].name){
+            printf("상품이 존재합니다.\n");
             return mid;
         }
-        else if(key < list[mid]) return Bisearch(list, start, mid-1, key);
+        else if(key < list[mid].name) return Bisearch(list, start, mid-1, key);
         else return Bisearch(list, start, mid-1, key);
     }
-    printf("상품이 존재하지 않습니다.");
+    printf("상품이 존재하지 않습니다.\n");
     return -1;
 }
 
-void buy(int list[]);
-void search(int list[]);
-void check(int list[]);
+void buy(NODE list[]);
+void search(NODE list[]);
+void check(NODE list[]);
+void insert(NODE list[], char name[20]);
 
-void Manager(int list[]){
-    int a;
-    printf("원하시는 서비스를 입력해 주세요.\n1: 구매   2: 상품 검색    3: 재고 확인    0: 나가기");
-    scanf("%d", &a);
-    switch(a){
-        case 1:
-            buy(list);
-            break;
-
-        case 2:
-            search(list);
-            break;
-
-        case 3:
-            check(list);
-            break;
-
-        case 0:
-            printf("이용해주셔서 감사합니다.");
-            break;
-
-        default:
-            printf("잘못된 값이 입력되었습니다.");
-            Manager(list);
-
+void Manager(NODE list[]){
+    while(1){
+        search(list);
     }
 }
-
+void start(NODE list[]){
+	NODE Cola;
+	strcpy(Cola.name,"cola");
+	Cola.num = 12;
+	list[0] = Cola;
+	NODE Soda;
+	strcpy(Soda.name,"soda");
+	Soda.num = 10;
+	list[1] = Soda;
+	count = 2;
+	
+}
 void main(){
+	start(market);
     Manager(market);
 }
 
-void buy(int list[]){
+void buy(NODE list[]){
 
 }
 
-void search(int list[]){
-    
+void search(NODE list[]){
+    char name[20] = {0, };
+    printf("찾는 물품의 이름을 입력해 주세요. : ");
+    gets(name);
+    int loca = Bisearch(list, 0, count, name);
+    if(loca == -1){
+        char ans;
+        printf("상품의 데이터를 생성하시겠습니까?[y/n] : ");
+        scanf("%c", &ans);
+        if(ans == 'y' || ans == 'Y'){
+            insert(list, name);
+        }
+        return;
+    }
+    printf("물품이 %d번째 칸에 있습니다.", loca + 1);
 }
 
-void check(int list[]){
+void check(NODE list[]){
 
 }
 
+void insert(NODE list[], char name[20]){
+    NODE newNode;
+    strcpy(newNode.name, name);
+    int amo;
+    printf("물품의 수량을 입력해 주세요. : ");
+    scanf("%d", &amo);
+    newNode.num = amo;
+    list[count] = newNode;
+    quicksort(list, 0, count);
+    count++;
+}
